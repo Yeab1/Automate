@@ -1,5 +1,5 @@
 from Actions import Action
-
+import PySimpleGUI as sg
 import pyautogui
 from pynput.mouse import Listener 
 import pyperclip
@@ -68,51 +68,73 @@ def keyBoardAction():
         on_press=on_press,
         on_release=on_release) as listener:
             listener.join()
+                
 
-mouse = threading.Thread(target = mouseAction)
-keys = threading.Thread(target = keyBoardAction)
 
-mouse.start()
-keys.start()
-mouse.join()
-keys.join()
+layout = [[sg.Text("AUTOMATION PROJECT", size=(20,1))],
+          [sg.Button('Start Recording')],
+          [sg.Button('Stop Recording')],
+          [sg.Button('Wait')],
+          [sg.Input(key = '-input-'), sg.Button('Play')]],
 
-print("================================ Actions ==================================")
-for action in allActions:
-    if action.actionType == "click":
-        print(action.getButton())
-    elif action.actionType == "keyPress":
-        print(str(action.getKey()))
-print("================================ Done ==================================")
+window = sg.Window('Design Pattern 3 - Persistent Window', layout)
 
-# inp = int(eval(input("How many times would you like to do the action?")))
-inp = 1
-pyautogui.moveTo(allActions[0].getPosition()[0], allActions[0].getPosition()[1], duration=1)
-pyautogui.click(button= (allActions[0].getButton().split('.'))[1])
+while True:
+    event, values = window.read()
+    print(event, values)
+    if event == 'Start Recording':
+        print("Start Typing")
+        mouse = threading.Thread(target = mouseAction)
+        keys = threading.Thread(target = keyBoardAction)
 
-for i in range(inp):
-    for index in range(1, len(allActions)):
+        # print statements for debugging and seeing the buttons recorded and their order.
+        print("================================ Actions ==================================")
+        for action in allActions:
+            if action.actionType == "click":
+                print(action.getButton())
+            elif action.actionType == "keyPress":
+                print(str(action.getKey()))
+        print("================================ Done ==================================")
+        mouse.start()
+        keys.start()
         
-        action = allActions[index]
-        if action.actionType == "click":
-            pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=1)
-            pyautogui.click(button= (action.getButton().split('.'))[1])
-        if action.actionType == "scroll":
-            pyautogui.scroll(action.getSpeed()[1]*100, x = action.getPosition()[0], y = action.getPosition()[1])
-        if action.actionType == "keyPress":
-            # pyautogui.press('a')
-            keyString = str(action.getKey())
-            if len(keyString) > 3:
-                keyString = keyString.split('.')[1]
-            else:
-                keyString = keyString[1]
-            if keyString in actionDictionary:
-                pyautogui.press(actionDictionary[keyString], interval = 0.5)
-            else:
-                print("new string: ", keyString)
-                pyautogui.press(keyString, interval = 0.5)
+        
+    if event == "Stop Recording":
+        mouse.daemon = True
+        keys.daemon = True
+        mouse.join()
+        keys.join()
+        
+    if event == "Play":
+        inp = int(values["-input-"])
+        pyautogui.moveTo(allActions[0].getPosition()[0], allActions[0].getPosition()[1], duration=1)
+        pyautogui.click(button= (allActions[0].getButton().split('.'))[1])
+
+        for i in range(inp):
+            for index in range(1, len(allActions)):
                 
-                
+                action = allActions[index]
+                if action.actionType == "click":
+                    pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=1)
+                    pyautogui.click(button= (action.getButton().split('.'))[1])
+                if action.actionType == "scroll":
+                    pyautogui.scroll(action.getSpeed()[1]*100, x = action.getPosition()[0], y = action.getPosition()[1])
+                if action.actionType == "keyPress":
+                    keyString = str(action.getKey())
+                    if len(keyString) > 3:
+                        keyString = keyString.split('.')[1]
+                    else:
+                        keyString = keyString[1]
+                    if keyString in actionDictionary:
+                        pyautogui.press(actionDictionary[keyString], interval = 0.5)
+                    else:
+                        print("new string: ", keyString)
+                        pyautogui.press(keyString, interval = 0.5)
+    if event is None:
+        break
+        
+window.close()
+exit()
                 
                 
                 
