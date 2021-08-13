@@ -71,16 +71,17 @@ def keyBoardAction():
         on_release=on_release) as listener:
             listener.join()
                 
+# DarkGrey13
+sg.theme('DarkGrey13')
+layout = [[sg.Text("AUTOMATION PROJECT TEST", size=(25,1), font=('Courier 15'))],
+          [sg.Button('Start Recording', font=('Verdana 9')), sg.Button('Stop Recording', font=('Verdana 9'))],
+          [sg.Input(key = '-waitTime-'), sg.Button('Wait (in Seconds)', font=('Verdana 9'))],
+          [sg.Text("Can't estimate wait time? Just tell me when to start and stop waiting:", size=(60,0), font=('Verdana 9'))],
+          [sg.Button('Start Wait', font=('Verdana 9')), sg.Button('Stop Wait', font=('Verdana 9'))],
+          [sg.Input(key = '-input-'), sg.Button('Play', font=('Verdana 9'))],
+          [sg.Text("", size=(60,0), key='-Errors-', font=('Verdana 9'))]]
 
-
-layout = [[sg.Text("AUTOMATION PROJECT", size=(25,1))],
-          [sg.Button('Start Recording'), sg.Button('Stop Recording')],
-          [sg.Input(key = '-waitTime-'), sg.Button('Wait (in Seconds)')],
-          [sg.Text("Can't estimate wait time? Just tell me when to start and stop waiting:", size=(60,0))],
-          [sg.Button('Start Wait'), sg.Button('Stop Wait')],
-          [sg.Input(key = '-input-'), sg.Button('Play')]]
-
-window = sg.Window('Design Pattern 3 - Persistent Window', layout)
+window = sg.Window('Automation Project Test Window', layout)
 startTime = None
 stopTime = None
 while True:
@@ -105,7 +106,7 @@ while True:
         keys.join()
         
     if event == "Stop Recording":
-        print("Stop Recording button still under development")
+        window['-Errors-'].update("Stop recording button is still under development.")
         
     if event == "Wait (in Seconds)":
         try:
@@ -115,7 +116,7 @@ while True:
             allActions.append(currWaitTime)
             
         except (ValueError):
-            print("Please insert time to wait in seconds")
+            window['-Errors-'].update("Please insert time to wait in seconds")
             
     if event == "Start Wait":
         print("Started Waiting")
@@ -127,6 +128,7 @@ while True:
         
     if startTime and stopTime:   
         calculatedWaitTime = stopTime - startTime
+        window['-Errors-'].update("Recorded " + str(round(calculatedWaitTime, 1)) + " seconds of wait time.")
         startTime = None
         stopTime = None
         
@@ -135,34 +137,41 @@ while True:
         allActions.append(currWaitTime)
         
     if event == "Play":
-        inp = int(values["-input-"])
-        pyautogui.moveTo(allActions[0].getPosition()[0], allActions[0].getPosition()[1], duration=1)
-        pyautogui.click(button= (allActions[0].getButton().split('.'))[1])
-        
-        for i in range(inp):
-            for index in range(1, len(allActions)):
-                action = allActions[index]
-                if action.actionType == "click":
-                    pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=1)
-                    pyautogui.click(button= (action.getButton().split('.'))[1])
-                if action.actionType == "scroll":
-                    pyautogui.scroll(action.getSpeed()[1]*100, x = action.getPosition()[0], y = action.getPosition()[1])
-                if action.actionType == "keyPress":
-                    keyString = str(action.getKey())
-                    if len(keyString) > 3:
-                        keyString = keyString.split('.')[1]
-                    else:
-                        keyString = keyString[1]
-                    if keyString in actionDictionary:
-                        pyautogui.press(actionDictionary[keyString], interval = 0.5)
-                    else:
-                        print("new string: ", keyString)
-                        pyautogui.press(keyString, interval = 0.5)
-                if action.actionType == "wait":
-                    time.sleep(action.getWaitTime())
-        
-        # clear previous actions for the next recording
-        allActions = []
+        try:
+            inp = int(values["-input-"])
+            pyautogui.moveTo(allActions[0].getPosition()[0], allActions[0].getPosition()[1], duration=1)
+            pyautogui.click(button= (allActions[0].getButton().split('.'))[1])
+            
+            for i in range(inp):
+                for index in range(1, len(allActions)):
+                    action = allActions[index]
+                    if action.actionType == "click":
+                        pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=1)
+                        pyautogui.click(button= (action.getButton().split('.'))[1])
+                    if action.actionType == "scroll":
+                        pyautogui.scroll(action.getSpeed()[1]*100, x = action.getPosition()[0], y = action.getPosition()[1])
+                    if action.actionType == "keyPress":
+                        keyString = str(action.getKey())
+                        if len(keyString) > 3:
+                            keyString = keyString.split('.')[1]
+                        else:
+                            keyString = keyString[1]
+                        if keyString in actionDictionary:
+                            pyautogui.press(actionDictionary[keyString], interval = 0.5)
+                        else:
+                            print("new string: ", keyString)
+                            pyautogui.press(keyString, interval = 0.5)
+                    if action.actionType == "wait":
+                        time.sleep(action.getWaitTime())
+            
+            # clear previous actions for the next recording
+            allActions = []
+        except (ValueError):
+            window['-Errors-'].update("Please enter number of repititions")
+        except (TypeError):
+            window['-Errors-'].update("No Recording Found")
+        except (IndexError):
+            window['-Errors-'].update("No Recording Found")
     if event is None:
         break
         
