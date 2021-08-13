@@ -36,6 +36,7 @@ def on_scroll(x,y,dx,dy):
     newScroll.setPosition(x, y)
     newScroll.setSpeed(dx, dy)
 
+    allActions.append(newScroll)
 def on_press(key):
 
     try:
@@ -109,11 +110,12 @@ while True:
         inp = int(values["-input-"])
         pyautogui.moveTo(allActions[0].getPosition()[0], allActions[0].getPosition()[1], duration=1)
         pyautogui.click(button= (allActions[0].getButton().split('.'))[1])
-
+        
         for i in range(inp):
             for index in range(1, len(allActions)):
                 
                 action = allActions[index]
+                print(action.actionType)
                 if action.actionType == "click":
                     pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=1)
                     pyautogui.click(button= (action.getButton().split('.'))[1])
@@ -138,7 +140,7 @@ exit()
                 
                 
                 
-                
+  
                 
                 
                 
@@ -152,6 +154,7 @@ exit()
 '''          
 Testing Area
 Please test your actions here so as not to break anything
+
 
 
 
