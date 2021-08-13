@@ -5,6 +5,7 @@ from pynput.mouse import Listener
 import pyperclip
 import threading
 from pynput import keyboard
+import time
 
 allActions = []
 
@@ -72,14 +73,16 @@ def keyBoardAction():
                 
 
 
-layout = [[sg.Text("AUTOMATION PROJECT", size=(20,1))],
-          [sg.Button('Start Recording')],
-          [sg.Button('Stop Recording')],
-          [sg.Button('Wait')],
-          [sg.Input(key = '-input-'), sg.Button('Play')]],
+layout = [[sg.Text("AUTOMATION PROJECT", size=(25,1))],
+          [sg.Button('Start Recording'), sg.Button('Stop Recording')],
+          [sg.Input(key = '-waitTime-'), sg.Button('Wait (in Seconds)')],
+          [sg.Text("Can't estimate wait time? Just tell me when to start and stop waiting:", size=(60,0))],
+          [sg.Button('Start Wait'), sg.Button('Stop Wait')],
+          [sg.Input(key = '-input-'), sg.Button('Play')]]
 
 window = sg.Window('Design Pattern 3 - Persistent Window', layout)
-
+startTime = None
+stopTime = None
 while True:
     event, values = window.read()
     print(event, values)
@@ -98,13 +101,38 @@ while True:
         print("================================ Done ==================================")
         mouse.start()
         keys.start()
-        
-        
-    if event == "Stop Recording":
-        mouse.daemon = True
-        keys.daemon = True
         mouse.join()
         keys.join()
+        
+    if event == "Stop Recording":
+        print("Stop Recording button still under development")
+        
+    if event == "Wait (in Seconds)":
+        try:
+            waitTime = int(values["-waitTime-"])
+            currWaitTime = Action("wait")
+            currWaitTime.setWaitTime(waitTime)
+            allActions.append(currWaitTime)
+            
+        except (ValueError):
+            print("Please insert time to wait in seconds")
+            
+    if event == "Start Wait":
+        print("Started Waiting")
+        startTime = time.time()
+        
+    if event == "Stop Wait":
+        stopTime = time.time()
+        print("Stopped Waiting")
+        
+    if startTime and stopTime:   
+        calculatedWaitTime = stopTime - startTime
+        startTime = None
+        stopTime = None
+        
+        currWaitTime = Action("wait")
+        currWaitTime.setWaitTime(calculatedWaitTime)
+        allActions.append(currWaitTime)
         
     if event == "Play":
         inp = int(values["-input-"])
@@ -113,9 +141,7 @@ while True:
         
         for i in range(inp):
             for index in range(1, len(allActions)):
-                
                 action = allActions[index]
-                print(action.actionType)
                 if action.actionType == "click":
                     pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=1)
                     pyautogui.click(button= (action.getButton().split('.'))[1])
@@ -132,6 +158,11 @@ while True:
                     else:
                         print("new string: ", keyString)
                         pyautogui.press(keyString, interval = 0.5)
+                if action.actionType == "wait":
+                    time.sleep(action.getWaitTime())
+        
+        # clear previous actions for the next recording
+        allActions = []
     if event is None:
         break
         
@@ -141,7 +172,22 @@ exit()
                 
                 
   
-                
+'''
+Scratch Area
+
+Introducing wait time
+problem, I can't click buttons in UI because of the events running with it.
+What if I create another thread for the 
+
+Or read the wait space in seconds after stopping event clickers, then restart recording if there is more to do
+
+make another wait thread that just waits for a specific input?
+
+
+
+
+
+'''
                 
                 
                 
@@ -154,7 +200,6 @@ exit()
 '''          
 Testing Area
 Please test your actions here so as not to break anything
-
 
 
 

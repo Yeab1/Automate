@@ -4,6 +4,7 @@ class Action():
     speed = None
     button = None
     key = None
+    waitTime = None
     # constructor
     def __init__ (self, actionType):
         self.actionType = actionType
@@ -21,6 +22,9 @@ class Action():
     def setKey(self, key):
         self.key = key
     
+    def setWaitTime(self, time):
+        self.waitTime = time
+    
     # Make getters
     def getPosition(self):
         return self.pos
@@ -33,3 +37,6 @@ class Action():
 
     def getKey(self):
         return self.key
+    
+    def getWaitTime(self):
+        return self.waitTime
