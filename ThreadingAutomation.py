@@ -79,7 +79,7 @@ def keyBoardAction():
 # DarkGrey13
 sg.theme('DarkGrey13')
 layout = [[sg.Text("AUTOMATION PROJECT TEST", size=(25,1), font=('Courier 15'))],
-          [sg.Button('Start Recording', font=('Verdana 9')), sg.Button('Stop Recording', font=('Verdana 9'))],
+          [sg.Button('Start Recording', font=('Verdana 9')), sg.Button('Stop Recording', font=('Verdana 9')), sg.Button('Clear Recording', font=('Verdana 9'))],
           [sg.Input(key = '-waitTime-'), sg.Button('Wait (in Seconds)', font=('Verdana 9'))],
           [sg.Text("Can't estimate wait time? Just tell me when to start and stop waiting:", size=(60,0), font=('Verdana 9'))],
           [sg.Button('Start Wait', font=('Verdana 9')), sg.Button('Stop Wait', font=('Verdana 9'))],
@@ -92,6 +92,10 @@ stopTime = None
 while True:
     event, values = window.read()
     print(event, values)
+    if event == 'Clear Recording':
+        allActions = []
+        window['-Errors-'].update("All recordings have been removed")
+        
     if event == 'Start Recording':
         window['-Errors-'].update("Press 'ESC' stop recording")
         mouse = threading.Thread(target = mouseAction)
@@ -169,8 +173,6 @@ while True:
                     if action.actionType == "wait":
                         time.sleep(action.getWaitTime())
             
-            # clear previous actions for the next recording
-            allActions = []
         except (ValueError):
             window['-Errors-'].update("Please enter number of repititions")
         except (TypeError):
