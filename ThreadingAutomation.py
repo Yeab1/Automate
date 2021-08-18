@@ -22,7 +22,9 @@ actionDictionary = {
 def on_click(x,y, button, pressed):
     if pressed:
         print("Clicked: ", x, y, button)
-        
+        if len(allActions) != 0 and allActions[-1].actionType == "keyPress" and allActions[-1].getKey() == keyboard.Key.esc:
+            print("returned")
+            return False
         if str(button) == "Button.middle":
             return False
         else:
@@ -52,6 +54,9 @@ def on_release(key):
         key))
     
     if key == keyboard.Key.esc:
+        keyPressed = Action("keyPress")
+        keyPressed.key = key
+        allActions.append(keyPressed)
         # Stop listener
         return False
     else:
@@ -88,25 +93,23 @@ while True:
     event, values = window.read()
     print(event, values)
     if event == 'Start Recording':
-        print("Start Typing")
+        window['-Errors-'].update("Press 'ESC' stop recording")
         mouse = threading.Thread(target = mouseAction)
         keys = threading.Thread(target = keyBoardAction)
 
         # print statements for debugging and seeing the buttons recorded and their order.
-        print("================================ Actions ==================================")
         for action in allActions:
             if action.actionType == "click":
                 print(action.getButton())
             elif action.actionType == "keyPress":
                 print(str(action.getKey()))
-        print("================================ Done ==================================")
         mouse.start()
         keys.start()
         mouse.join()
         keys.join()
         
     if event == "Stop Recording":
-        window['-Errors-'].update("Stop recording button is still under development.")
+        window['-Errors-'].update("Recording Stopped")
         
     if event == "Wait (in Seconds)":
         try:
@@ -139,28 +142,30 @@ while True:
     if event == "Play":
         try:
             inp = int(values["-input-"])
-            pyautogui.moveTo(allActions[0].getPosition()[0], allActions[0].getPosition()[1], duration=1)
+            pyautogui.moveTo(allActions[0].getPosition()[0], allActions[0].getPosition()[1], duration=0.1)
             pyautogui.click(button= (allActions[0].getButton().split('.'))[1])
             
             for i in range(inp):
                 for index in range(1, len(allActions)):
                     action = allActions[index]
                     if action.actionType == "click":
-                        pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=1)
+                        pyautogui.moveTo(action.getPosition()[0], action.getPosition()[1], duration=0.1)
                         pyautogui.click(button= (action.getButton().split('.'))[1])
                     if action.actionType == "scroll":
                         pyautogui.scroll(action.getSpeed()[1]*100, x = action.getPosition()[0], y = action.getPosition()[1])
                     if action.actionType == "keyPress":
+                        if action.getKey() == keyboard.Key.esc:
+                            continue
                         keyString = str(action.getKey())
                         if len(keyString) > 3:
                             keyString = keyString.split('.')[1]
                         else:
                             keyString = keyString[1]
                         if keyString in actionDictionary:
-                            pyautogui.press(actionDictionary[keyString], interval = 0.5)
+                            pyautogui.press(actionDictionary[keyString], interval = 0.01)
                         else:
                             print("new string: ", keyString)
-                            pyautogui.press(keyString, interval = 0.5)
+                            pyautogui.press(keyString, interval = 0.01)
                     if action.actionType == "wait":
                         time.sleep(action.getWaitTime())
             
@@ -184,28 +189,18 @@ exit()
 '''
 Scratch Area
 
-Introducing wait time
-problem, I can't click buttons in UI because of the events running with it.
-What if I create another thread for the 
-
-Or read the wait space in seconds after stopping event clickers, then restart recording if there is more to do
-
-make another wait thread that just waits for a specific input?
 
 
 
 
 
-'''
-                
-                
-                
-                
-                
-                
-                
-                
-                
+
+
+
+
+
+
+'''                 
 '''          
 Testing Area
 Please test your actions here so as not to break anything
