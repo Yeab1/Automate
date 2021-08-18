@@ -21,9 +21,7 @@ actionDictionary = {
 
 def on_click(x,y, button, pressed):
     if pressed:
-        print("Clicked: ", x, y, button)
         if len(allActions) != 0 and allActions[-1].actionType == "keyPress" and allActions[-1].getKey() == keyboard.Key.esc:
-            print("returned")
             return False
         if str(button) == "Button.middle":
             return False
@@ -161,7 +159,6 @@ while True:
                         if keyString in actionDictionary:
                             pyautogui.press(actionDictionary[keyString], interval = 0.01)
                         else:
-                            print("new string: ", keyString)
                             pyautogui.press(keyString, interval = 0.01)
                     if action.actionType == "wait":
                         time.sleep(action.getWaitTime())
@@ -177,42 +174,3 @@ while True:
         
 window.close()
 exit()
-                
-                
-                
-  
-'''
-Scratch Area
-
-
-
-
-
-
-
-
-
-
-
-
-'''                 
-'''          
-Testing Area
-Please test your actions here so as not to break anything
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
